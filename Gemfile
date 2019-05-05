@@ -4,3 +4,4 @@ source "https://rubygems.org"
 gemspec
 
 gem 'pry'
+gem 'git-pr-release', '0.7.0'
