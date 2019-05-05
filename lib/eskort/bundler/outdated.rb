@@ -26,7 +26,7 @@ module Eskort
           dependency = current_dependencies[current_spec.name]
 
           # trueで実行するとGemfileで許可されているUpdate可能なものだけをリストする
-          active_spec = retrieve_active_spec(true, definition, current_spec)
+          active_spec = retrieve_active_spec(false, definition, current_spec)
 
           next if active_spec.nil?
           next if !outdated?(active_spec, current_spec) && (current_spec.git_version == active_spec.git_version)
