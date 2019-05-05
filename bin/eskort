@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+
+require "eskort"
+require 'pry'
+
+# TODO:
+# should move to cli options
+UPDATE_GEMS_COUNT = 1
+DEFAULT_LABELS = []
+REPOSITORY_NAME = 'radioboo/eskort'
+BASE_BRANCH = 'master'
+GIT_USER_EMAIL = 'sakai.atsushi@gmail.com'
+GIT_USER_NAME = 'radioboo'
+
+def checkout_and_update_gem(branch_name, active_spec)
+  command = Eskort::Bundler::Command.new
+  command.git_config_global(email: GIT_USER_EMAIL, name: GIT_USER_NAME)
+  command.git_checkout(branch_name)
+  command.bundle_update(active_spec.name)
+  command.git_commit(active_spec.name, active_spec.version.to_s)
+  command.git_push(branch_name)
+end
+
+def branch_name(active_spec)
+  "#{active_spec.name}-#{Time.now.to_i}#{Time.now.usec}"
+end
+
+def create_pull_request(branch_name, current_spec, active_spec)
+  Eskort::Github::ApiClient.create_pull_request(
+    repo: REPOSITORY_NAME,
+    base: BASE_BRANCH,
+    head: branch_name,
+    title: title(active_spec.name, current_spec.version.to_s, active_spec.version.to_s),
+    body: body(active_spec.name, current_spec.version.to_s, active_spec.version.to_s),
+    options: { labels: DEFAULT_LABELS },
+  )
+end
+
+def title(spec_name, from_version, to_version)
+  "Auto Update: #{spec_name} #{from_version} -> #{to_version}"
+end
+
+def body(spec_name, from_version, to_version)
+  "Auto Update: #{spec_name} #{from_version} -> #{to_version}"
+end
+
+outdated_gems = Eskort::Bundler::Outdated.new.list
+outdated_gems.sample(UPDATE_GEMS_COUNT).each do |og|
+  branch_name = branch_name(og.active_spec)
+  checkout_and_update_gem(branch_name, og.active_spec)
+  create_pull_request(branch_name, current_spec, active_spec)
+end
