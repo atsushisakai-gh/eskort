@@ -8,10 +8,10 @@ require 'pry'
 # should move to cli options
 UPDATE_GEMS_COUNT = 1
 DEFAULT_LABELS = []
-REPOSITORY_NAME = 'radioboo/eskort'
+REPOSITORY_NAME = ENV['REPOSITORY_NAME']
 BASE_BRANCH = 'master'
-GIT_USER_EMAIL = 'sakai.atsushi@gmail.com'
-GIT_USER_NAME = 'radioboo'
+GIT_USER_EMAIL = ENV['GIT_USER_EMAIL']
+GIT_USER_NAME = ENV['GIT_USER_NAME']
 
 def checkout_and_update_gem(branch_name, active_spec)
   command = Eskort::Bundler::Command.new
