@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require "eskort"
+require "octokit"
 require 'pry'
 
 # TODO:
@@ -27,7 +28,7 @@ end
 
 def create_pull_request(branch_name, current_spec, active_spec)
   client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
-  clinet.create_pull_request(
+  client.create_pull_request(
     REPOSITORY_NAME,
     BASE_BRANCH,
     branch_name,
