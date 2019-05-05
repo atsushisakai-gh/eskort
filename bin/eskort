@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require "eskort"
+require 'pry'
+
+binding.pry
+Eskort::Bundler::Outdated
+Eskort::Bundler::Command
