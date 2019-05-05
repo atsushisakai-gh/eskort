@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require "eskort"
+require "octokit"
 require 'pry'
 
 # TODO:
@@ -26,13 +27,14 @@ def branch_name(active_spec)
 end
 
 def create_pull_request(branch_name, current_spec, active_spec)
-  Eskort::Github::ApiClient.create_pull_request(
-    repo: REPOSITORY_NAME,
-    base: BASE_BRANCH,
-    head: branch_name,
-    title: title(active_spec.name, current_spec.version.to_s, active_spec.version.to_s),
-    body: body(active_spec.name, current_spec.version.to_s, active_spec.version.to_s),
-    options: { labels: DEFAULT_LABELS },
+  client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
+  client.create_pull_request(
+    REPOSITORY_NAME,
+    BASE_BRANCH,
+    branch_name,
+    title(active_spec.name, current_spec.version.to_s, active_spec.version.to_s),
+    body(active_spec.name, current_spec.version.to_s, active_spec.version.to_s),
+    { labels: DEFAULT_LABELS },
   )
 end
 
@@ -48,5 +50,5 @@ outdated_gems = Eskort::Bundler::Outdated.new.list
 outdated_gems.sample(UPDATE_GEMS_COUNT).each do |og|
   branch_name = branch_name(og.active_spec)
   checkout_and_update_gem(branch_name, og.active_spec)
-  create_pull_request(branch_name, current_spec, active_spec)
+  create_pull_request(branch_name, og.current_spec, og.active_spec)
 end
